@@ -50,12 +50,17 @@ exports.handler = async (event) => {
       }),
     });
 
-    const data = await response.json().catch(() => ({}));
+    const rawText = await response.text();
+    let data = {};
+    try { data = JSON.parse(rawText); } catch { /* leave data empty, use rawText below */ }
 
     if (!response.ok) {
+      console.error('Postscript API error', response.status, rawText);
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.message || data.error || 'Postscript rejected the request' }),
+        body: JSON.stringify({
+          error: data.message || data.error || data.detail || rawText || 'Postscript rejected the request',
+        }),
       };
     }
 
