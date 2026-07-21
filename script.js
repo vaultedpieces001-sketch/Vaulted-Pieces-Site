@@ -9,44 +9,6 @@ mainNav.querySelectorAll('a').forEach((link) => {
   link.addEventListener('click', () => mainNav.classList.remove('open'));
 });
 
-/* --- Postscript SMS signup ---
- * Submits to a Netlify serverless function (netlify/functions/subscribe.js)
- * which calls Postscript's Subscriber API using a private API key kept
- * server-side. Requires POSTSCRIPT_API_KEY and POSTSCRIPT_KEYWORD to be
- * set as environment variables in Netlify, and the site to be deployed
- * via Git (drag-and-drop deploys don't run Netlify Functions).
- */
-async function subscribeToSms(phone) {
-  try {
-    const res = await fetch('/.netlify/functions/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) return { success: false, error: data.error || 'Something went wrong.' };
-    return { success: true };
-  } catch {
-    return { success: false, error: 'Network error — please try again.' };
-  }
-}
-
-const smsForm = document.getElementById('smsForm');
-const signupStatus = document.getElementById('signupStatus');
-
-if (smsForm) {
-  smsForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const phone = smsForm.querySelector('input[type="tel"]').value;
-    signupStatus.textContent = 'Signing you up…';
-    signupStatus.hidden = false;
-    const result = await subscribeToSms(phone);
-    signupStatus.textContent = result.success
-      ? "You're on the list! Watch your phone for a welcome text."
-      : result.error;
-  });
-}
-
 /* --- Direct-to-checkout size/quantity picker ---
  * Fill in the numeric Shopify variant ID for each size below.
  * To find a variant ID: Shopify admin → Products → open the product →
@@ -118,11 +80,10 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
   });
 });
 
-/* --- 10% off SMS signup popup ---
+/* --- 10% off SMS text-to-join popup ---
  * Shows once per visitor (tracked via localStorage), after a short delay.
- * Submits through the same subscribeToSms() → Postscript flow as the
- * footer form. Also create a matching "WELCOME10" discount code in
- * Shopify (Discounts) so the offer actually works at checkout.
+ * TODO: once your Postscript number is verified, replace the phone number
+ * text below (search "a number coming soon") with the real one.
  */
 (function initSmsPopup() {
   const DISMISS_KEY = 'vpPopupDismissed';
@@ -134,16 +95,8 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
     <div class="popup-modal">
       <button type="button" class="popup-close" aria-label="Close">&times;</button>
       <h2>Get 10% Off</h2>
-      <p>Sign up for SMS alerts and get an exclusive code for your first order.</p>
-      <form class="popup-form">
-        <input type="tel" name="phone" placeholder="Phone number" required>
-        <button type="submit" class="btn btn-primary">Get My Code</button>
-      </form>
-      <label class="consent">
-        <input type="checkbox" required>
-        <span>I agree to receive recurring automated marketing texts from Vaulted Pieces. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to unsubscribe.</span>
-      </label>
-      <p class="popup-status" hidden></p>
+      <p>Text <span class="popup-highlight">VAULTED</span> to <span class="popup-highlight">a number coming soon</span> to get your code.</p>
+      <p class="popup-note">Msg &amp; data rates may apply. Reply STOP to unsubscribe.</p>
       <a href="#" class="popup-dismiss">No thanks</a>
     </div>
   `;
@@ -155,7 +108,7 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
     setTimeout(() => popup.remove(), 300);
   };
 
-  const openTimer = setTimeout(() => popup.classList.add('is-open'), 4000);
+  setTimeout(() => popup.classList.add('is-open'), 4000);
 
   popup.querySelector('.popup-close').addEventListener('click', dismiss);
   popup.querySelector('.popup-dismiss').addEventListener('click', (e) => {
@@ -167,22 +120,5 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && popup.classList.contains('is-open')) dismiss();
-  });
-
-  const popupForm = popup.querySelector('.popup-form');
-  const popupStatus = popup.querySelector('.popup-status');
-
-  popupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    clearTimeout(openTimer);
-    const phone = popupForm.querySelector('input[type="tel"]').value;
-    popupStatus.textContent = 'Signing you up…';
-    popupStatus.hidden = false;
-    const result = await subscribeToSms(phone);
-    popupForm.hidden = true;
-    popupStatus.textContent = result.success
-      ? "You're on the list! Watch your phone for your code."
-      : result.error;
-    localStorage.setItem(DISMISS_KEY, '1');
   });
 })();
