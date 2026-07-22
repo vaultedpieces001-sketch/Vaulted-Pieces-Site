@@ -18,6 +18,7 @@
       <a href="about.html">About</a>
       <a href="faq.html">FAQ</a>
       <a href="index.html#signup">Join the List</a>
+      <a href="cart.html" class="cart-link">Cart<span class="cart-count" id="cartCount" hidden>0</span></a>
     </nav>
   </div>
 </header>
@@ -29,56 +30,6 @@
 
 <section class="shop" id="shop">
   <div class="product-grid">
-
-    <article class="product-card">
-      <div class="product-image">
-        <img src="images/midnight-hoodie.jpg" alt="Midnight Hoodie">
-      </div>
-      <div class="product-info">
-        <h3>Midnight Hoodie</h3>
-        <p class="price">$65.00</p>
-        <p class="desc">Heavyweight zip hoodie in 350gsm French terry cotton. Hand-painted star-field and wing graphic across the front — no two are exactly alike. Embroidered "Ascent" script and VP monogram. Relaxed, cropped fit with a full hood.</p>
-        <div class="variant-picker" data-product="midnight-hoodie">
-          <div class="size-options">
-            <button type="button" class="size-btn" data-size="S">S</button>
-            <button type="button" class="size-btn" data-size="M">M</button>
-            <button type="button" class="size-btn" data-size="L">L</button>
-            <button type="button" class="size-btn" data-size="XL">XL</button>
-          </div>
-          <div class="qty-picker">
-            <button type="button" class="qty-btn" data-action="decrease" aria-label="Decrease quantity">−</button>
-            <input type="number" class="qty-input" value="1" min="1" max="10" readonly>
-            <button type="button" class="qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
-          </div>
-          <button type="button" class="btn btn-shop buy-btn">Buy</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card">
-      <div class="product-image">
-        <img src="images/midnight-sweatpants.jpg" alt="Midnight Sweatpants">
-      </div>
-      <div class="product-info">
-        <h3>Midnight Sweatpants</h3>
-        <p class="price">$65.00</p>
-        <p class="desc">Matching 350gsm French terry cotton sweatpants. Same hand-painted graphic treatment down the leg, embroidered "Ascent" script, tapered fit with elastic waist and drawstring. Hand-finished and one-of-one.</p>
-        <div class="variant-picker" data-product="midnight-sweatpants">
-          <div class="size-options">
-            <button type="button" class="size-btn" data-size="S">S</button>
-            <button type="button" class="size-btn" data-size="M">M</button>
-            <button type="button" class="size-btn" data-size="L">L</button>
-            <button type="button" class="size-btn" data-size="XL">XL</button>
-          </div>
-          <div class="qty-picker">
-            <button type="button" class="qty-btn" data-action="decrease" aria-label="Decrease quantity">−</button>
-            <input type="number" class="qty-input" value="1" min="1" max="10" readonly>
-            <button type="button" class="qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
-          </div>
-          <button type="button" class="btn btn-shop buy-btn">Buy</button>
-        </div>
-      </div>
-    </article>
 
     <article class="product-card featured">
       <div class="product-image">
@@ -101,7 +52,7 @@
             <input type="number" class="qty-input" value="1" min="1" max="10" readonly>
             <button type="button" class="qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
           </div>
-          <button type="button" class="btn btn-shop buy-btn">Buy</button>
+          <button type="button" class="btn btn-shop add-cart-btn">Add to Cart</button>
         </div>
       </div>
     </article>
