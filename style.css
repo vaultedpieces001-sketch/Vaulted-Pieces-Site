@@ -439,27 +439,6 @@ img { max-width: 100%; display: block; }
   margin-bottom: 28px;
 }
 
-.textjoin {
-  border: 1px solid var(--line);
-  padding: 28px 24px;
-}
-
-.textjoin-line {
-  font-size: 1rem;
-  color: var(--fg);
-}
-
-.textjoin-highlight {
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.textjoin-note {
-  margin-top: 10px;
-  font-size: 0.75rem;
-  color: #777;
-}
-
 /* About page */
 .about-page {
   padding: 20px 24px 100px;
@@ -521,92 +500,6 @@ img { max-width: 100%; display: block; }
   line-height: 1.7;
   margin-top: 14px;
 }
-
-/* SMS discount popup */
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-
-.popup-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.popup-modal {
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  max-width: 380px;
-  width: 100%;
-  padding: 44px 32px 32px;
-  position: relative;
-  text-align: center;
-  transform: translateY(12px);
-  transition: transform 0.25s ease;
-}
-
-.popup-overlay.is-open .popup-modal {
-  transform: translateY(0);
-}
-
-.popup-close {
-  position: absolute;
-  top: 10px;
-  right: 14px;
-  background: none;
-  border: none;
-  color: var(--fg-dim);
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.popup-close:hover { color: var(--fg); }
-
-.popup-modal h2 {
-  font-size: 1.3rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  margin-bottom: 10px;
-}
-
-.popup-modal > p {
-  color: var(--fg-dim);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin-bottom: 4px;
-}
-
-.popup-highlight {
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.popup-note {
-  font-size: 0.75rem;
-  color: #777;
-  margin-bottom: 4px;
-}
-
-.popup-dismiss {
-  display: inline-block;
-  margin-top: 18px;
-  font-size: 0.8rem;
-  color: #777;
-  border-bottom: 1px solid transparent;
-}
-
-.popup-dismiss:hover { color: var(--fg-dim); border-color: var(--fg-dim); }
 
 /* Footer */
 .site-footer {
