@@ -1,3 +1,73 @@
+/* --- Site password gate with launch countdown ---
+ * Locks the site behind a password until LAUNCH_DATE arrives.
+ * NOTE: this is a client-side gate for casual "coming soon" protection,
+ * not real security — anyone who disables JS or views page source can
+ * see past it. Don't rely on it for anything sensitive.
+ * To change the password or date, edit the two constants below.
+ */
+(function siteGate() {
+  const LAUNCH_DATE = new Date('2026-08-29T00:00:00');
+  const GATE_PASSWORD = 'VAULTED001';
+  const UNLOCK_KEY = 'vpGateUnlocked';
+
+  if (Date.now() >= LAUNCH_DATE.getTime()) return;
+  if (localStorage.getItem(UNLOCK_KEY) === '1') return;
+
+  document.documentElement.style.overflow = 'hidden';
+
+  const gate = document.createElement('div');
+  gate.className = 'gate-overlay';
+  gate.innerHTML = `
+    <div class="gate-modal">
+      <div class="gate-logo">VAULTED&nbsp;PIECES</div>
+      <p class="gate-eyebrow">Launching In</p>
+      <div class="gate-countdown">
+        <div><span id="gateDays">00</span><small>Days</small></div>
+        <div><span id="gateHours">00</span><small>Hrs</small></div>
+        <div><span id="gateMinutes">00</span><small>Min</small></div>
+        <div><span id="gateSeconds">00</span><small>Sec</small></div>
+      </div>
+      <form class="gate-form" id="gateForm">
+        <input type="password" placeholder="Password" id="gatePassword" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Enter</button>
+      </form>
+      <p class="gate-error" id="gateError" hidden>Incorrect password.</p>
+    </div>
+  `;
+  document.body.appendChild(gate);
+
+  function updateCountdown() {
+    const diff = LAUNCH_DATE.getTime() - Date.now();
+    if (diff <= 0) {
+      window.location.reload();
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    document.getElementById('gateDays').textContent = String(days).padStart(2, '0');
+    document.getElementById('gateHours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('gateMinutes').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('gateSeconds').textContent = String(seconds).padStart(2, '0');
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  document.getElementById('gateForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const entered = document.getElementById('gatePassword').value;
+    if (entered === GATE_PASSWORD) {
+      localStorage.setItem(UNLOCK_KEY, '1');
+      document.documentElement.style.overflow = '';
+      gate.remove();
+    } else {
+      document.getElementById('gateError').hidden = false;
+    }
+  });
+})();
+
 const navToggle = document.getElementById('navToggle');
 const mainNav = document.getElementById('mainNav');
 
