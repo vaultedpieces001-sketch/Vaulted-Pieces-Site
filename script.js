@@ -88,8 +88,8 @@ const SHOPIFY_DOMAIN = 'itxfrk-fa.myshopify.com';
 
 const PRODUCTS = {
   'midnight-set': {
-    name: 'Midnight Set',
-    price: 120.00,
+    name: 'Founders Drop',
+    price: 100.00,
     image: 'images/midnight-set.jpg',
     variants: { S: '52544933363844', M: '52544933396612', L: '52544933429380', XL: '52544933462148' },
   },
