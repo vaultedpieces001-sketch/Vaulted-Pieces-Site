@@ -76,6 +76,8 @@ const PRODUCTS = {
     price: 120.00,
     image: 'images/midnight-set.jpg',
     variants: { S: '52544933363844', M: '52544933396612', L: '52544933429380', XL: '52544933462148' },
+    // Keep in sync with actual Shopify inventory for each size.
+    stock: { S: 10, M: 20, L: 10, XL: 9 },
   },
 };
 
@@ -102,17 +104,18 @@ function saveCart(cart) {
 function addToCart(productKey, size, qty) {
   const product = PRODUCTS[productKey];
   const variantId = product.variants[size];
+  const maxStock = product.stock[size];
   const cart = getCart();
 
   const existing = cart.find((item) => item.productKey === productKey && item.size === size);
   if (existing) {
-    existing.qty += qty;
+    existing.qty = Math.min(existing.qty + qty, maxStock);
   } else {
     cart.push({
       productKey,
       variantId,
       size,
-      qty,
+      qty: Math.min(qty, maxStock),
       name: product.name,
       price: product.price,
       image: product.image,
@@ -157,19 +160,29 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
     status.hidden = false;
   };
 
+  const currentMax = () => parseInt(qtyInput.max, 10) || 10;
+
+  const syncQtyButtons = () => {
+    const current = parseInt(qtyInput.value, 10);
+    decreaseBtn.disabled = current <= 1;
+    increaseBtn.disabled = current >= currentMax();
+  };
+
   sizeBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       sizeBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       status.hidden = true;
+
+      const product = PRODUCTS[productKey];
+      const stock = product && product.stock[btn.dataset.size];
+      if (stock) {
+        qtyInput.max = stock;
+        if (parseInt(qtyInput.value, 10) > stock) qtyInput.value = stock;
+      }
+      syncQtyButtons();
     });
   });
-
-  const syncQtyButtons = () => {
-    const current = parseInt(qtyInput.value, 10);
-    decreaseBtn.disabled = current <= 1;
-    increaseBtn.disabled = current >= 10;
-  };
 
   decreaseBtn.addEventListener('click', () => {
     const current = parseInt(qtyInput.value, 10);
@@ -179,7 +192,7 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
 
   increaseBtn.addEventListener('click', () => {
     const current = parseInt(qtyInput.value, 10);
-    if (current < 10) qtyInput.value = current + 1;
+    if (current < currentMax()) qtyInput.value = current + 1;
     syncQtyButtons();
   });
 
@@ -201,8 +214,25 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
       return;
     }
 
-    addToCart(productKey, size, parseInt(qtyInput.value, 10));
-    showStatus('Added to cart.');
+    const requestedQty = parseInt(qtyInput.value, 10);
+    const alreadyInCart = getCart()
+      .filter((item) => item.productKey === productKey && item.size === size)
+      .reduce((sum, item) => sum + item.qty, 0);
+    const maxStock = product.stock[size];
+
+    if (alreadyInCart >= maxStock) {
+      showStatus(`You already have the max available (${maxStock}) of this size in your cart.`);
+      return;
+    }
+
+    addToCart(productKey, size, requestedQty);
+
+    const actuallyAdded = Math.min(requestedQty, maxStock - alreadyInCart);
+    showStatus(
+      actuallyAdded < requestedQty
+        ? `Only ${actuallyAdded} more available in this size — added what we could.`
+        : 'Added to cart.'
+    );
 
     const originalLabel = addCartBtn.textContent;
     addCartBtn.textContent = 'Added ✓';
@@ -233,7 +263,9 @@ if (cartInner) {
       return;
     }
 
-    const itemsHtml = cart.map((item, index) => `
+    const itemsHtml = cart.map((item, index) => {
+      const maxStock = (PRODUCTS[item.productKey] && PRODUCTS[item.productKey].stock[item.size]) || 10;
+      return `
       <div class="cart-item">
         <a href="index.html#buy" class="cart-item-link">
           <img src="${item.image}" alt="${item.name}" class="cart-item-image">
@@ -244,14 +276,15 @@ if (cartInner) {
           <p class="cart-item-price">$${item.price.toFixed(2)}</p>
           <div class="qty-picker">
             <button type="button" class="qty-btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity" ${item.qty <= 1 ? 'disabled' : ''}>−</button>
-            <input type="number" class="qty-input" value="${item.qty}" min="1" max="10" data-index="${index}" readonly aria-label="Quantity">
-            <button type="button" class="qty-btn" data-action="increase" data-index="${index}" aria-label="Increase quantity" ${item.qty >= 10 ? 'disabled' : ''}>+</button>
+            <input type="number" class="qty-input" value="${item.qty}" min="1" max="${maxStock}" data-index="${index}" readonly aria-label="Quantity">
+            <button type="button" class="qty-btn" data-action="increase" data-index="${index}" aria-label="Increase quantity" ${item.qty >= maxStock ? 'disabled' : ''}>+</button>
           </div>
           <button type="button" class="cart-remove" data-index="${index}">Remove</button>
         </div>
         <p class="cart-item-total">$${(item.price * item.qty).toFixed(2)}</p>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -269,7 +302,8 @@ if (cartInner) {
         const index = parseInt(btn.dataset.index, 10);
         const cart = getCart();
         const item = cart[index];
-        if (btn.dataset.action === 'increase' && item.qty < 10) item.qty += 1;
+        const maxStock = (PRODUCTS[item.productKey] && PRODUCTS[item.productKey].stock[item.size]) || 10;
+        if (btn.dataset.action === 'increase' && item.qty < maxStock) item.qty += 1;
         if (btn.dataset.action === 'decrease' && item.qty > 1) item.qty -= 1;
         saveCart(cart);
         renderCart();
