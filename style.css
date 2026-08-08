@@ -9,6 +9,11 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
 /* Password gate + launch countdown */
 .gate-overlay {
   position: fixed;
@@ -69,6 +74,12 @@
   margin-top: 16px;
   font-size: 0.85rem;
   color: #e5484d;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (max-width: 480px) {
@@ -160,6 +171,16 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.cart-count.bump {
+  animation: cartBump 0.35s ease;
+}
+
+@keyframes cartBump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.4); }
+  100% { transform: scale(1); }
 }
 
 .nav-toggle {
@@ -399,9 +420,15 @@ img { max-width: 100%; display: block; }
   color: #0a0a0a;
   font-family: inherit;
   margin-top: 0;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
 .add-cart-btn:hover { background: #d8d8d5; }
+
+.add-cart-btn.is-added {
+  background: #4ade80;
+  color: #0a0a0a;
+}
 
 .add-cart-btn.is-disabled {
   opacity: 0.5;
@@ -697,6 +724,11 @@ img { max-width: 100%; display: block; }
 
 .cart-summary .btn-primary {
   margin-top: 0;
+}
+
+.cart-continue {
+  display: block;
+  margin-top: 16px;
 }
 
 @media (max-width: 560px) {

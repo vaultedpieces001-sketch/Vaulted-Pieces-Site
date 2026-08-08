@@ -62,7 +62,7 @@ const SHOPIFY_DOMAIN = 'itxfrk-fa.myshopify.com';
 const PRODUCTS = {
   'midnight-set': {
     name: 'Founders Drop',
-    price: 100.00,
+    price: 120.00,
     image: 'images/midnight-set.jpg',
     variants: { S: '52544933363844', M: '52544933396612', L: '52544933429380', XL: '52544933462148' },
   },
@@ -81,7 +81,7 @@ function getCart() {
 
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  updateCartBadge();
+  updateCartBadge(true);
 }
 
 function addToCart(productKey, size, qty) {
@@ -107,11 +107,17 @@ function addToCart(productKey, size, qty) {
   saveCart(cart);
 }
 
-function updateCartBadge() {
+function updateCartBadge(animate) {
   const count = getCart().reduce((sum, item) => sum + item.qty, 0);
   document.querySelectorAll('#cartCount').forEach((badge) => {
     badge.textContent = count;
     badge.hidden = count === 0;
+    if (animate) {
+      badge.classList.remove('bump');
+      // eslint-disable-next-line no-unused-expressions
+      badge.offsetWidth; // restart the animation if it's already mid-run
+      badge.classList.add('bump');
+    }
   });
 }
 
@@ -172,6 +178,16 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
 
     addToCart(productKey, size, parseInt(qtyInput.value, 10));
     showStatus('Added to cart.');
+
+    const originalLabel = addCartBtn.textContent;
+    addCartBtn.textContent = 'Added ✓';
+    addCartBtn.classList.add('is-added');
+    addCartBtn.disabled = true;
+    setTimeout(() => {
+      addCartBtn.textContent = originalLabel;
+      addCartBtn.classList.remove('is-added');
+      addCartBtn.disabled = false;
+    }, 1200);
   });
 });
 
@@ -186,7 +202,7 @@ if (cartInner) {
       cartInner.innerHTML = `
         <div class="cart-empty">
           <p>Your cart is empty.</p>
-          <a href="shop.html" class="btn-link">Shop the drop →</a>
+          <a href="index.html#buy" class="btn-link">Shop the drop →</a>
         </div>
       `;
       return;
@@ -217,6 +233,7 @@ if (cartInner) {
       <div class="cart-summary">
         <p class="cart-subtotal">Subtotal: $${subtotal.toFixed(2)}</p>
         <button type="button" class="btn btn-primary" id="checkoutBtn">Checkout</button>
+        <a href="index.html#buy" class="btn-link cart-continue">← Continue shopping</a>
       </div>
     `;
 
