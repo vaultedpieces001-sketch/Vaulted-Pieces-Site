@@ -34,6 +34,10 @@
         <button type="submit" class="btn btn-primary">Enter</button>
       </form>
       <p class="gate-error" id="gateError" hidden>Incorrect password.</p>
+      <div class="gate-social">
+        <a href="https://instagram.com/vaulted.pieces" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://tiktok.com/@vaulted1pieces" target="_blank" rel="noopener">TikTok</a>
+      </div>
     </div>
   `;
   document.body.appendChild(gate);

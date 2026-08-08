@@ -104,6 +104,23 @@
   animation: fadeIn 0.2s ease;
 }
 
+.gate-social {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.gate-social a {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #777;
+  transition: color 0.2s ease;
+}
+
+.gate-social a:hover { color: var(--fg); }
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
