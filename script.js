@@ -9,7 +9,17 @@
   const GATE_PASSWORD = 'VAULTED001';
   const UNLOCK_KEY = 'vpGateUnlocked';
 
-  if (localStorage.getItem(UNLOCK_KEY) === '1') return;
+  // If localStorage is blocked (strict private-browsing, disabled storage),
+  // fail open rather than let the whole page break silently.
+  let storageOk = true;
+  let alreadyUnlocked = false;
+  try {
+    alreadyUnlocked = localStorage.getItem(UNLOCK_KEY) === '1';
+  } catch {
+    storageOk = false;
+  }
+
+  if (alreadyUnlocked || !storageOk) return;
 
   document.documentElement.style.overflow = 'hidden';
 
@@ -20,19 +30,20 @@
       <div class="gate-logo">VAULTED&nbsp;PIECES</div>
       <p class="gate-eyebrow">Coming Soon</p>
       <form class="gate-form" id="gateForm">
-        <input type="password" placeholder="Password" id="gatePassword" autocomplete="off">
+        <input type="password" placeholder="Password" id="gatePassword" autocomplete="off" aria-label="Password">
         <button type="submit" class="btn btn-primary">Enter</button>
       </form>
       <p class="gate-error" id="gateError" hidden>Incorrect password.</p>
     </div>
   `;
   document.body.appendChild(gate);
+  document.getElementById('gatePassword').focus();
 
   document.getElementById('gateForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const entered = document.getElementById('gatePassword').value;
     if (entered === GATE_PASSWORD) {
-      localStorage.setItem(UNLOCK_KEY, '1');
+      try { localStorage.setItem(UNLOCK_KEY, '1'); } catch { /* best effort */ }
       document.documentElement.style.overflow = '';
       gate.remove();
     } else {
@@ -80,7 +91,11 @@ function getCart() {
 }
 
 function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  } catch {
+    /* storage unavailable — cart won't persist across pages, but don't crash */
+  }
   updateCartBadge(true);
 }
 
@@ -150,15 +165,25 @@ document.querySelectorAll('.variant-picker').forEach((picker) => {
     });
   });
 
+  const syncQtyButtons = () => {
+    const current = parseInt(qtyInput.value, 10);
+    decreaseBtn.disabled = current <= 1;
+    increaseBtn.disabled = current >= 10;
+  };
+
   decreaseBtn.addEventListener('click', () => {
     const current = parseInt(qtyInput.value, 10);
     if (current > 1) qtyInput.value = current - 1;
+    syncQtyButtons();
   });
 
   increaseBtn.addEventListener('click', () => {
     const current = parseInt(qtyInput.value, 10);
     if (current < 10) qtyInput.value = current + 1;
+    syncQtyButtons();
   });
+
+  syncQtyButtons();
 
   addCartBtn.addEventListener('click', () => {
     const activeSize = picker.querySelector('.size-btn.active');
@@ -210,15 +235,17 @@ if (cartInner) {
 
     const itemsHtml = cart.map((item, index) => `
       <div class="cart-item">
-        <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+        <a href="index.html#buy" class="cart-item-link">
+          <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+        </a>
         <div class="cart-item-info">
-          <h3>${item.name}</h3>
+          <a href="index.html#buy" class="cart-item-link"><h3>${item.name}</h3></a>
           <p class="cart-item-size">Size: ${item.size}</p>
           <p class="cart-item-price">$${item.price.toFixed(2)}</p>
           <div class="qty-picker">
-            <button type="button" class="qty-btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity">−</button>
-            <input type="number" class="qty-input" value="${item.qty}" min="1" max="10" data-index="${index}" readonly>
-            <button type="button" class="qty-btn" data-action="increase" data-index="${index}" aria-label="Increase quantity">+</button>
+            <button type="button" class="qty-btn" data-action="decrease" data-index="${index}" aria-label="Decrease quantity" ${item.qty <= 1 ? 'disabled' : ''}>−</button>
+            <input type="number" class="qty-input" value="${item.qty}" min="1" max="10" data-index="${index}" readonly aria-label="Quantity">
+            <button type="button" class="qty-btn" data-action="increase" data-index="${index}" aria-label="Increase quantity" ${item.qty >= 10 ? 'disabled' : ''}>+</button>
           </div>
           <button type="button" class="cart-remove" data-index="${index}">Remove</button>
         </div>
