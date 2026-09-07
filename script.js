@@ -27,7 +27,7 @@
   const gate = document.createElement('div');
   gate.className = 'gate-overlay';
   gate.innerHTML = `
-    <div class="gate-product"><img src="images/midnight-set.jpg" alt="The Ascent Set"><span>THE ASCENT SET / FOUNDERS DROP</span></div><div class="gate-modal">
+    <div class="gate-product"><img src="images/ascent-campaign-front.jpg" alt="The Ascent Set"><span>THE ASCENT SET / FOUNDERS DROP</span></div><div class="gate-modal">
       <div class="gate-logo">VAULTED&nbsp;PIECES</div>
       <p class="gate-eyebrow">Coming soon</p><h1 class="gate-title">The first drop.</h1><p class="gate-description">The Ascent Set. Hoodie and sweatpants in 350gsm French terry cotton.</p>
       <form class="gate-form" id="gateForm">
@@ -68,7 +68,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&mainNav?.cl
 // Original Shopify variants and manually configured quantity limits.
 // Shopify checkout is authoritative for actual stock and final pricing.
 const SHOPIFY_DOMAIN = 'itxfrk-fa.myshopify.com';
-const PRODUCTS = {'midnight-set':{name:'The Ascent Set',price:120,image:'images/midnight-set.jpg',variants:{S:'52544933363844',M:'52544933396612',L:'52544933429380',XL:'52544933462148'},stock:{S:10,M:20,L:10,XL:9}}};
+const PRODUCTS = {'midnight-set':{name:'The Ascent Set',price:120,image:'images/ascent-campaign-front.jpg',variants:{S:'52544933363844',M:'52544933396612',L:'52544933429380',XL:'52544933462148'},stock:{S:10,M:20,L:10,XL:9}}};
 const CART_KEY='vpCart';
 let memoryCart=[];
 function getCart(){
@@ -93,7 +93,7 @@ function updateCartBadge(){const count=getCart().reduce((n,item)=>n+item.qty,0);
 function checkout(){const items=getCart();if(!items.length)return;window.location.href=`https://${SHOPIFY_DOMAIN}/cart/${items.map(item=>`${item.variantId}:${item.qty}`).join(',')}?return_to=/checkout`;}
 const bagDrawer=document.getElementById('bagDrawer');
 function cartMarkup(cart){
- if(!cart.length)return '<div class="cart-empty"><img class="empty-bag-photo" src="images/midnight-set.jpg" alt="The Ascent Set"><div><p>Your bag is empty.</p><span>The Ascent Set · Hoodie + sweatpants · $120</span><a href="index.html#buy" class="btn-primary" data-continue>Explore the set</a></div></div>';
+ if(!cart.length)return '<div class="cart-empty"><img class="empty-bag-photo" src="images/ascent-campaign-front.jpg" alt="The Ascent Set"><div><p>Your bag is empty.</p><span>The Ascent Set · Hoodie + sweatpants · $120</span><a href="index.html#buy" class="btn-primary" data-continue>Explore the set</a></div></div>';
  const subtotal=cart.reduce((sum,item)=>sum+item.price*item.qty,0);
  return `<div class="cart-items">${cart.map((item,i)=>`<div class="cart-item"><a href="index.html#buy"><img class="cart-item-image" src="${item.image}" alt="${item.name}"></a><div class="cart-item-info"><a href="index.html#buy"><h3>${item.name}</h3></a><p>Midnight / ${item.size}</p><p>Hoodie + sweatpants</p><div class="qty-picker"><button class="qty-btn" data-cart-action="decrease" data-index="${i}" aria-label="Decrease quantity of size ${item.size}" ${item.qty<=1?'disabled':''}>−</button><input class="qty-input" type="number" value="${item.qty}" readonly aria-label="Quantity of size ${item.size}"><button class="qty-btn" data-cart-action="increase" data-index="${i}" aria-label="Increase quantity of size ${item.size}" ${item.qty>=PRODUCTS[item.productKey].stock[item.size]?'disabled':''}>+</button></div><button class="cart-remove" data-cart-action="remove" data-index="${i}" aria-label="Remove size ${item.size} from bag">Remove</button></div><p class="cart-item-total">${money(item.price*item.qty)}</p></div>`).join('')}</div><div class="cart-summary"><h2 class="summary-title">Order summary</h2><p class="cart-subtotal"><span>Subtotal</span><span>${money(subtotal)}</span></p><p class="cart-shipping-note">Final total confirmed at checkout.</p><button class="btn-primary" data-checkout>Checkout</button><a href="cart.html" class="btn-link view-bag">View full bag</a><a href="index.html#buy" class="btn-link cart-continue" data-continue>Continue shopping</a></div>`;
 }
