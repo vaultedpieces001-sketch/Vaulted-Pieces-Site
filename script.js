@@ -92,21 +92,24 @@ function money(value){return '$'+value.toFixed(2);}
 function updateCartBadge(){const count=getCart().reduce((n,item)=>n+item.qty,0);document.querySelectorAll('#cartCount').forEach(el=>{el.textContent=count;el.hidden=false;});const title=document.getElementById('drawerCount');if(title)title.textContent=`(${count})`;}
 function checkout(){const items=getCart();if(!items.length)return;window.location.href=`https://${SHOPIFY_DOMAIN}/cart/${items.map(item=>`${item.variantId}:${item.qty}`).join(',')}?return_to=/checkout`;}
 const bagDrawer=document.getElementById('bagDrawer');
+let removedItem=null;
+function removalNotice(){return removedItem?'<div class="cart-notice" role="status">Item removed. <button data-undo-remove>Undo</button></div>':'';}
 function cartMarkup(cart){
- if(!cart.length)return '<div class="cart-empty"><img class="empty-bag-photo" src="images/ascent-campaign-front.jpg" alt="The Ascent Set"><div><p>Your bag is empty.</p><span>The Ascent Set · Hoodie + sweatpants · $120</span><a href="index.html#buy" class="btn-primary" data-continue>Explore the set</a></div></div>';
+ if(!cart.length)return removalNotice()+'<div class="cart-empty"><img class="empty-bag-photo" src="images/ascent-campaign-front.jpg" alt="The Ascent Set"><div><p>Your bag is empty.</p><span>The Ascent Set · Hoodie + sweatpants · $120</span><a href="index.html#buy" class="btn-primary" data-continue>Explore the set</a></div></div>';
  const subtotal=cart.reduce((sum,item)=>sum+item.price*item.qty,0);
- return `<div class="cart-items">${cart.map((item,i)=>`<div class="cart-item"><a href="index.html#buy"><img class="cart-item-image" src="${item.image}" alt="${item.name}"></a><div class="cart-item-info"><a href="index.html#buy"><h3>${item.name}</h3></a><p>Midnight / ${item.size}</p><p>Hoodie + sweatpants</p><div class="qty-picker"><button class="qty-btn" data-cart-action="decrease" data-index="${i}" aria-label="Decrease quantity of size ${item.size}" ${item.qty<=1?'disabled':''}>−</button><input class="qty-input" type="number" value="${item.qty}" readonly aria-label="Quantity of size ${item.size}"><button class="qty-btn" data-cart-action="increase" data-index="${i}" aria-label="Increase quantity of size ${item.size}" ${item.qty>=PRODUCTS[item.productKey].stock[item.size]?'disabled':''}>+</button></div><button class="cart-remove" data-cart-action="remove" data-index="${i}" aria-label="Remove size ${item.size} from bag">Remove</button></div><p class="cart-item-total">${money(item.price*item.qty)}</p></div>`).join('')}</div><div class="cart-summary"><h2 class="summary-title">Order summary</h2><p class="cart-subtotal"><span>Subtotal</span><span>${money(subtotal)}</span></p><p class="cart-shipping-note">Final total confirmed at checkout.</p><button class="btn-primary" data-checkout>Checkout</button><a href="cart.html" class="btn-link view-bag">View full bag</a><a href="index.html#buy" class="btn-link cart-continue" data-continue>Continue shopping</a></div>`;
+ return removalNotice()+`<div class="cart-items">${cart.map((item,i)=>`<div class="cart-item"><a href="index.html#buy"><img class="cart-item-image" src="${item.image}" alt="${item.name}"></a><div class="cart-item-info"><a href="index.html#buy"><h3>${item.name}</h3></a><p>Midnight / ${item.size}</p><p>Hoodie + sweatpants</p><label class="cart-size">Size <select data-cart-size data-index="${i}" aria-label="Change size for ${item.name}">${Object.keys(PRODUCTS[item.productKey].variants).map(size=>`<option ${size===item.size?'selected':''}>${size}</option>`).join('')}</select></label><div class="qty-picker"><button class="qty-btn" data-cart-action="decrease" data-index="${i}" aria-label="Decrease quantity of size ${item.size}" ${item.qty<=1?'disabled':''}>−</button><input class="qty-input" type="number" value="${item.qty}" readonly aria-label="Quantity of size ${item.size}"><button class="qty-btn" data-cart-action="increase" data-index="${i}" aria-label="Increase quantity of size ${item.size}" ${item.qty>=PRODUCTS[item.productKey].stock[item.size]?'disabled':''}>+</button></div><button class="cart-remove" data-cart-action="remove" data-index="${i}" aria-label="Remove size ${item.size} from bag">Remove</button></div><p class="cart-item-total">${money(item.price*item.qty)}</p></div>`).join('')}</div><div class="cart-summary"><h2 class="summary-title">Order summary</h2><p class="cart-subtotal"><span>Subtotal</span><span>${money(subtotal)}</span></p><p class="cart-shipping-note">Final total confirmed at checkout.</p><button class="btn-primary" data-checkout>Checkout</button><a href="cart.html" class="btn-link view-bag">View full bag</a><a href="index.html#buy" class="btn-link cart-continue" data-continue>Continue shopping</a></div>`;
 }
 function renderCart(){const cart=getCart();for(const id of ['cartInner','drawerContents']){const container=document.getElementById(id);if(container)container.innerHTML=cartMarkup(cart);}updateCartBadge();}
 function openBag(){renderCart();if(bagDrawer&&!bagDrawer.open)bagDrawer.showModal();}
 document.querySelectorAll('[data-open-bag]').forEach(link=>link.addEventListener('click',event=>{if(bagDrawer){event.preventDefault();openBag();}}));
 document.addEventListener('click',event=>{
+ if(event.target.closest('[data-undo-remove]')){if(removedItem){const cart=getCart(),existing=cart.find(i=>i.productKey===removedItem.productKey&&i.size===removedItem.size);if(existing)existing.qty=Math.min(existing.qty+removedItem.qty,PRODUCTS[existing.productKey].stock[existing.size]);else cart.push(removedItem);removedItem=null;saveCart(cart);renderCart();}return;}
  const checkoutButton=event.target.closest('[data-checkout]');if(checkoutButton){checkout();return;}
  const button=event.target.closest('[data-cart-action]');
  if(button){
   const container=button.closest('#cartInner,#drawerContents');const cart=getCart(),index=Number(button.dataset.index),item=cart[index];if(!item)return;
   const action=button.dataset.cartAction;
-  if(action==='remove')cart.splice(index,1);else item.qty=Math.max(1,Math.min(PRODUCTS[item.productKey].stock[item.size],item.qty+(action==='increase'?1:-1)));
+  if(action==='remove'){removedItem={...item};cart.splice(index,1);}else item.qty=Math.max(1,Math.min(PRODUCTS[item.productKey].stock[item.size],item.qty+(action==='increase'?1:-1)));
   saveCart(cart);renderCart();
   const replacement=container?.querySelector(`[data-cart-action="${action}"][data-index="${Math.min(index,cart.length-1)}"]:not(:disabled)`);
   (replacement||container?.querySelector('button:not(:disabled),a'))?.focus();return;
@@ -144,3 +147,28 @@ document.querySelectorAll('[data-zoom]').forEach(button=>button.addEventListener
 const track=document.getElementById('galleryTrack');
 if(track){const dots=[...document.querySelectorAll('[data-gallery-index]')];dots.forEach(button=>button.addEventListener('click',()=>{const image=track.children[Number(button.dataset.galleryIndex)];track.scrollTo({left:image.offsetLeft-track.children[0].offsetLeft,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}));track.addEventListener('scroll',()=>{const index=track.scrollLeft>(track.children[0].clientWidth/2)?1:0;dots.forEach((dot,i)=>{dot.classList.toggle('active',i===index);dot.setAttribute('aria-pressed',String(i===index));});},{passive:true});}
 renderCart();
+
+document.addEventListener('change',event=>{
+ const select=event.target.closest('[data-cart-size]');if(!select)return;
+ const cart=getCart(),item=cart[Number(select.dataset.index)],size=select.value;if(!item||!Object.hasOwn(PRODUCTS[item.productKey].variants,size))return;
+ const existing=cart.find(row=>row!==item&&row.productKey===item.productKey&&row.size===size);
+ if(existing){existing.qty=Math.min(existing.qty+item.qty,PRODUCTS[item.productKey].stock[size]);cart.splice(Number(select.dataset.index),1);}else{item.size=size;item.qty=Math.min(item.qty,PRODUCTS[item.productKey].stock[size]);}
+ const container=select.closest('#drawerContents,#cartInner');saveCart(cart);renderCart();container?.querySelector('[data-cart-size]')?.focus();
+});
+document.addEventListener('click',event=>{if(mainNav?.classList.contains('open')&&!event.target.closest('.site-header'))closeMenu();});
+if(imageDialog){
+ const photos=[...document.querySelectorAll('[data-zoom]')];let current=0;
+ const controls=document.createElement('div');controls.className='photo-controls';controls.innerHTML='<button aria-label="Previous photo" data-photo-step="-1">←</button><span class="photo-count" aria-live="polite"></span><button aria-label="Next photo" data-photo-step="1">→</button>';
+ imageDialog.querySelector('.zoom-heading').insertBefore(controls,imageDialog.querySelector('.close-button'));
+ const count=controls.querySelector('.photo-count');
+ function showPhoto(index){current=(index+photos.length)%photos.length;const photo=photos[current],image=document.getElementById('zoomImage');image.src=photo.dataset.zoom;image.alt=photo.dataset.photoAlt;document.getElementById('zoomCaption').textContent=photo.dataset.photoAlt;count.textContent=(current+1)+' / '+photos.length;imageDialog.querySelector('.zoom-scroll').scrollTo(0,0);}
+ photos.forEach((photo,index)=>photo.addEventListener('click',()=>showPhoto(index)));
+ controls.addEventListener('click',event=>{const button=event.target.closest('[data-photo-step]');if(button)showPhoto(current+Number(button.dataset.photoStep));});
+ imageDialog.addEventListener('keydown',event=>{if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();showPhoto(current+(event.key==='ArrowRight'?1:-1));}});
+}
+const helpSections=document.querySelector('.help-sections');
+if(helpSections){
+ const search=document.createElement('label');search.className='faq-search';search.innerHTML='Find an answer<input type="search" placeholder="Try sizing, shipping, or care" aria-label="Search help">';
+ helpSections.prepend(search);const empty=document.createElement('p');empty.className='faq-empty';empty.hidden=true;empty.setAttribute('role','status');empty.textContent='No matching answers. Try another word or contact us.';helpSections.append(empty);
+ search.querySelector('input').addEventListener('input',event=>{const query=event.target.value.trim().toLowerCase();let matches=0;helpSections.querySelectorAll('section').forEach(section=>{let visible=0;section.querySelectorAll('.faq-item').forEach(item=>{const match=!query||item.textContent.toLowerCase().includes(query);item.hidden=!match;if(match){visible++;matches++;}if(query)item.open=match;else item.open=false;});section.hidden=!visible;});empty.hidden=matches>0;});
+}
