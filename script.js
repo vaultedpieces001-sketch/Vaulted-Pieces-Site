@@ -42,7 +42,7 @@
     </div>
   `;
   document.body.appendChild(gate);
-  document.getElementById('gatePassword').focus();
+  if (matchMedia('(min-width: 721px)').matches) document.getElementById('gatePassword').focus();
 
   document.getElementById('gateForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -125,7 +125,7 @@ if(picker){
  const product=PRODUCTS[picker.dataset.product],qtyInput=picker.querySelector('.qty-input'),addButton=picker.querySelector('.add-cart-btn'),status=picker.querySelector('.variant-status');
  const sizes=[...picker.querySelectorAll('.size-btn')];let selected=null;
  const showStatus=(text,success=false)=>{status.textContent=text;status.hidden=false;status.classList.toggle('success',success);};
- const syncQuantity=()=>{const qty=Number(qtyInput.value);picker.querySelector('[data-action="decrease"]').disabled=qty<=1;picker.querySelector('[data-action="increase"]').disabled=qty>=Number(qtyInput.max);addButton.innerHTML=`Add to bag <span>— $${qty*product.price}</span>`;};
+ const syncQuantity=()=>{const qty=Number(qtyInput.value);picker.querySelector('[data-action="decrease"]').disabled=qty<=1;picker.querySelector('[data-action="increase"]').disabled=qty>=Number(qtyInput.max);addButton.innerHTML=`Add to bag <span>- $${qty*product.price}</span>`;const mobileButton=document.getElementById('mobileBuyButton');mobileButton.textContent=selected?`Add ${selected} to bag`:'Select size';document.querySelector('#mobileBuy > div > span').textContent=money(qty*product.price);};
  for(const button of sizes)button.addEventListener('click',()=>{selected=button.dataset.size;sizes.forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button));});document.getElementById('selectedSize').textContent=selected;qtyInput.max=product.stock[selected];qtyInput.value=Math.min(Number(qtyInput.value),Number(qtyInput.max));status.hidden=true;document.getElementById('mobileBuyButton').textContent='Add to bag';syncQuantity();});
  picker.querySelectorAll('[data-action]').forEach(button=>button.addEventListener('click',()=>{qtyInput.value=Math.max(1,Math.min(Number(qtyInput.max),Number(qtyInput.value)+(button.dataset.action==='increase'?1:-1)));syncQuantity();}));
  addButton.addEventListener('click',()=>{
@@ -138,7 +138,7 @@ if(picker){
  });
  syncQuantity();
  const mobileBar=document.getElementById('mobileBuy');
- new IntersectionObserver(entries=>{mobileBar.hidden=entries[0].isIntersecting;},{threshold:0}).observe(picker);
+ new IntersectionObserver(entries=>{mobileBar.hidden=entries[0].intersectionRatio>=0.95;},{threshold:[0,0.95,1],rootMargin:'-66px 0px 0px 0px'}).observe(addButton);
  document.getElementById('mobileBuyButton').addEventListener('click',()=>{if(selected){addButton.click();}else{picker.scrollIntoView({block:'center'});sizes[0].focus({preventScroll:true});}});
  document.getElementById('sizeHelp').addEventListener('click',()=>document.getElementById('sizeDialog').showModal());
 }

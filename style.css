@@ -44,6 +44,63 @@ dialog{color:var(--fg);border:0;background:#090909;padding:0;max-height:100dvh}d
 .cart-item-image,.empty-bag-photo,.recovery-product>img,.zoom-scroll img{mix-blend-mode:normal}
 @media(max-width:720px){.gallery-image{padding:0}.gallery-image img{height:auto}.collection-photo{padding:0 0 35px}.collection-photo .collection-back{inset:0;width:100%}.campaign-photo{aspect-ratio:878/1560}}
 
+/* Compact phone purchase layout: keep full photography and buying controls together. */
+@media(max-width:720px){
+ html{scroll-padding-top:72px}
+ .home .announcement{font-size:10px;padding:5px 10px}
+ .header-inner{height:58px}
+ .home .product{padding-top:10px}
+ .home .product-breadcrumb,.home .mobile-product-title{display:none}
+ .home .gallery-track{padding:0 16px;gap:8px;scroll-padding-inline:16px}
+ .home .gallery-image{flex:0 0 94%;height:clamp(180px,31svh,280px);padding:0;background:#121212;border:1px solid var(--line)}
+ .home .gallery-image img{height:100%;width:100%;aspect-ratio:auto;object-fit:contain}
+ .home .gallery-nav{padding:0 16px;min-height:44px;font-size:10px}
+ .gallery-dot{width:44px;height:44px}
+ .gallery-dot:after{left:19px;top:19px;width:6px;height:6px}
+ .home .product-info{display:flex;flex-direction:column;padding:6px 16px 0}
+ .home .product-info .eyebrow{order:0;margin:0 0 4px}
+ .home .product-info h1{order:1;font-size:25px;line-height:1.1}
+ .home .product-subtitle{order:2;margin:4px 0 7px;font-size:12px}
+ .home .price-line{order:3;margin:0 0 10px}
+ .home .variant-picker{order:4;scroll-margin-block:80px 110px}
+ .home .product-description{order:5;margin:18px 0 10px;line-height:1.65}
+ .home .color-label{order:6;margin:0 0 12px}
+ .home .product-facts{order:7;margin-top:0}
+ .home .picker-label{margin-bottom:5px;min-height:30px}
+ .home .text-button{min-height:36px;padding:8px 0}
+ .home .size-options{gap:8px}
+ .home .size-btn{min-height:48px;padding:10px 0;font-size:14px}
+ .home .set-note{margin:5px 0 9px;font-size:11px}
+ .home .purchase-row{gap:8px}
+ .home .purchase-row .qty-picker{width:112px}
+ .home .purchase-row .qty-btn{width:40px;min-height:48px;flex-shrink:0}
+ .home .purchase-row .qty-input{width:30px}
+ .home .add-cart-btn{min-height:50px;padding:12px 8px;font-size:13px}
+ .home .add-cart-btn span{font-size:12px}
+ .home .checkout-note{margin-top:7px}
+ .mobile-buy{padding:10px 16px calc(10px + env(safe-area-inset-bottom));gap:10px}
+ .mobile-buy button{min-height:48px;min-width:155px}
+ .home:has(dialog[open]) .mobile-buy{visibility:hidden}
+ .home .detail-grid{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory}
+ .home .detail-grid figure{flex:0 0 78%;scroll-snap-align:start}
+ .home .campaign-photo{height:340px;aspect-ratio:auto}
+ .home .campaign-photo img{object-fit:contain}
+ .bag-drawer .qty-btn{min-width:40px;min-height:44px}
+ .bag-drawer .qty-picker{width:112px}
+ .bag-drawer .qty-input{width:30px}
+ .cart-size select{font-size:16px;min-height:44px}
+ .cart-remove{min-height:44px}
+ .bag-drawer .cart-summary [data-checkout]{min-height:50px}
+ .gate-form input,.faq-search input{font-size:16px}
+}
+@media(max-width:360px){
+ .header-inner{padding-inline:12px}
+ .header-inner .logo{font-size:19px}
+ .home .gallery-track{padding-inline:12px;scroll-padding-inline:12px}
+ .home .product-info{padding-inline:12px}
+ .home .price-line{gap:8px}
+ .home .add-cart-btn span{display:none}
+}
 :root{color-scheme:dark}
 .announcement{background:#171717;color:#d8d4cc}
 .add-cart-btn,.btn-primary,.size-btn.active,.mobile-buy button{background:#f2f0eb;color:#090909;border-color:#f2f0eb}
@@ -65,4 +122,10 @@ dialog::backdrop{background:rgba(0,0,0,.75)}
 .faq-search{display:block;margin-bottom:26px;font-size:12px}
 .faq-search input{display:block;width:100%;padding:14px;margin-top:9px;background:#151515;color:#eee;border:1px solid #444}
 .faq-empty{color:#bbb;padding:18px 0}
+@media(max-width:720px){.cart-size select{font-size:16px;min-height:44px}}
+@media(max-width:720px) and (max-height:650px){
+ .home .announcement{display:none}
+ .home .gallery-image{height:clamp(140px,26svh,165px)}
+ .home .product-info .eyebrow{display:none}
+}
 @media(max-width:720px){.zoom-heading{padding:0 10px}.zoom-heading p{font-size:10px}.photo-controls{gap:4px}.photo-controls button{min-width:34px}.photo-count{min-width:30px}}
